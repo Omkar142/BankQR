@@ -1,2 +1,2 @@
-:HL["/BankQR/_next/static/css/fc65e13e12def6ff.css","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}},"staleTime":300,"buildId":"Fttv1-nAw8eauSSFIcrXp"}
+:HL["/BankQR/_next/static/css/f837011124a46099.css","style"]
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}},"staleTime":300,"buildId":"zwEa8UD8heTQ9vvXv77Uf"}
