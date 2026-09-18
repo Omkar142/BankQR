@@ -34,3 +34,5 @@ The same focused command passed after implementation: 2 files and 73 tests passe
 ## Known gaps
 
 Browser automation can validate the URI but cannot emulate an installed mobile UPI handler. A physical Android phone must confirm the operating-system chooser and at least one real PSP app. iOS behavior depends on the installed app and its registered schemes. BankQR has no backend and therefore cannot verify or confirm payment status.
+
+The exported `/BankQR` build was published to GitHub Pages. The public merchant-to-payer run generated a V2 link, entered a customer amount and verified the resulting `upi://pay` URI without resource or console errors.

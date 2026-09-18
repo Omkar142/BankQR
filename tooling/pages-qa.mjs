@@ -35,6 +35,7 @@ await page.getByLabel("Account holder name", { exact: true }).fill("Kiran Rao");
 await page.getByLabel("Account number", { exact: true }).fill("001234567890");
 await page.getByLabel("Confirm account number", { exact: true }).fill("001234567890");
 await page.getByLabel("IFSC", { exact: true }).fill("HDFC0001234");
+await page.getByLabel("UPI ID (optional)", { exact: true }).fill("kiran@bank");
 const confirmation = page.getByLabel("I confirm these receiving details are correct.");
 await confirmation.click();
 await expect(confirmation).toBeChecked();
@@ -49,11 +50,18 @@ try {
   );
 }
 const testUrl = await testPaymentLink.getAttribute("href");
-if (!testUrl?.startsWith(`${siteOrigin}${siteBasePath}/pay/#v1=`)) {
+if (!testUrl?.startsWith(`${siteOrigin}${siteBasePath}/pay/#v2=`)) {
   throw new Error(`Unexpected generated Pages URL: ${testUrl}`);
 }
 await page.goto(testUrl);
 await expect(page.getByRole("heading", { name: "Kiran Stores" })).toBeVisible();
+await page.getByLabel("Amount to pay").fill("25.50");
+const upiIntent = await page
+  .getByRole("link", { name: "Pay with UPI app" })
+  .getAttribute("href");
+if (!upiIntent?.startsWith("upi://pay?") || !upiIntent.includes("pa=kiran%40bank")) {
+  throw new Error(`Unexpected deployed UPI intent: ${upiIntent}`);
+}
 if (failures.length) throw new Error(`Resource failures:\n${failures.join("\n")}`);
 console.log("GitHub Pages base-path flow passed without resource errors.");
 await browser.close();
