@@ -1,0 +1,192 @@
+import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
+import { PNG } from "pngjs";
+import jsQR from "jsqr";
+import { readFile } from "node:fs/promises";
+const payload = {
+  v: 1,
+  mode: "payment",
+  merchantName: "Kiran Stores",
+  accountHolderName: "Kiran Rao",
+  accountNumber: "001234567890",
+  ifsc: "HDFC0001234",
+  amountPaise: 12500,
+  createdAt: "2026-09-18T00:00:00.000Z",
+};
+const hash = (data: unknown) =>
+  "#v1=" + Buffer.from(JSON.stringify(data)).toString("base64url");
+test("merchant generates real scannable PNG, saves explicitly, edits invalidate QR", async ({
+  page,
+}) => {
+  await page.goto("/create/");
+  await page.getByLabel("Merchant name", { exact: true }).fill("Kiran Stores");
+  await page
+    .getByLabel("Account holder name", { exact: true })
+    .fill("Kiran Rao");
+  await page.getByLabel("Account number", { exact: true }).fill("001234567890");
+  await page
+    .getByLabel("Confirm account number", { exact: true })
+    .fill("001234567899");
+  await page.getByLabel("IFSC", { exact: true }).fill("hdfc0001234");
+  await page
+    .getByLabel("I confirm these receiving details are correct.")
+    .check();
+  await page
+    .getByRole("button", { name: "Generate BankQR", exact: true })
+    .click();
+  await expect(
+    page.getByText("The account numbers do not match."),
+  ).toBeVisible();
+  await page
+    .getByLabel("Confirm account number", { exact: true })
+    .fill("001234567890");
+  await page
+    .getByRole("button", { name: "Generate BankQR", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Your BankQR is ready" }),
+  ).toBeVisible();
+  expect(await page.evaluate(() => localStorage.length)).toBe(0);
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download QR" }).click();
+  const download = await downloadPromise;
+  const png = PNG.sync.read(await readFile((await download.path())!));
+  const decoded = jsQR(new Uint8ClampedArray(png.data), png.width, png.height);
+  expect(decoded).toBeTruthy();
+  expect(decoded!.data).toContain("/pay/#v1=");
+  expect(download.suggestedFilename()).toMatch(
+    /^bankqr-kiran-stores-\d{8}\.png$/,
+  );
+  await page.getByRole("button", { name: "Save on this device" }).click();
+  expect(await page.evaluate(() => localStorage.length)).toBe(1);
+  await page.getByRole("button", { name: "Edit details" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Your BankQR is ready" }),
+  ).toHaveCount(0);
+  await page.getByRole("button", { name: "Delete saved profile" }).click();
+  expect(await page.evaluate(() => localStorage.length)).toBe(0);
+});
+test("payment mode requires amount and confirms destructive mode switch", async ({
+  page,
+}) => {
+  await page.goto("/create/");
+  await page.getByRole("radio", { name: "Payment QR", exact: true }).check();
+  await page.getByLabel("Amount (₹)", { exact: true }).fill("125.00");
+  await page.getByRole("radio", { name: "Static QR", exact: true }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.getByRole("button", { name: "Keep payment QR" }).click();
+  await expect(page.getByLabel("Amount (₹)", { exact: true })).toHaveValue(
+    "125.00",
+  );
+});
+test("payer masks account, copies full value, traps sheet focus and changes hash fail closed", async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto("/pay/" + hash(payload));
+  await expect(
+    page.getByRole("heading", { name: "Kiran Stores" }),
+  ).toBeVisible();
+  await expect(page.getByText("•••• •••• 7890")).toBeVisible();
+  await expect(page.getByLabel("Amount to pay")).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Copy account number", exact: true })
+    .click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+    "001234567890",
+  );
+  await page
+    .getByRole("button", { name: "Open banking app", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await expect(
+    page.getByText("Open your banking app manually", { exact: true }),
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Open banking app", exact: true }),
+  ).toBeFocused();
+  await page.evaluate(() => {
+    location.hash = "v1=bad";
+  });
+  await expect(
+    page.getByText("This BankQR link is invalid or incomplete."),
+  ).toBeVisible();
+  await expect(page.getByText("Kiran Stores")).toHaveCount(0);
+});
+test("static amount, clipboard fallback, zero payload storage or request leakage", async ({
+  page,
+}) => {
+  const urls: string[] = [];
+  page.on("request", (r) => urls.push(r.url()));
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: async () => {
+          throw new Error("denied");
+        },
+      },
+    });
+  });
+  const { amountPaise: _, ...staticPayload } = payload;
+  void _;
+  await page.goto("/pay/" + hash({ ...staticPayload, mode: "static" }));
+  await page.getByLabel("Amount to pay").fill("25.50");
+  await page
+    .getByRole("button", { name: "Copy account number", exact: true })
+    .click();
+  await expect(page.getByLabel("Select account number")).toHaveValue(
+    "001234567890",
+  );
+  expect(
+    urls.every(
+      (url) =>
+        !url.includes(payload.accountNumber) && !url.includes(payload.ifsc),
+    ),
+  ).toBe(true);
+  expect(
+    urls.every((url) => new URL(url).origin === "http://127.0.0.1:4173"),
+  ).toBe(true);
+  expect(
+    await page.evaluate(() => [localStorage.length, sessionStorage.length]),
+  ).toEqual([0, 0]);
+});
+test("accessible payer, reduced motion and 320px layout", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.goto("/pay/" + hash(payload));
+  await expect(
+    page.getByRole("heading", { name: "Kiran Stores" }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page
+    .getByRole("button", { name: "Open banking app", exact: true })
+    .click();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  for (let i = 0; i < 10; i++) {
+    await page.keyboard.press("Tab");
+    await expect
+      .poll(() =>
+        page
+          .getByRole("dialog")
+          .evaluate((el) => el.contains(document.activeElement)),
+      )
+      .toBe(true);
+  }
+});
+test("landing, creation and legal pages are reachable and accessible", async ({
+  page,
+}) => {
+  for (const route of ["/", "/create/", "/privacy/", "/terms/"]) {
+    await page.goto(route);
+    await expect(page.locator("h1")).toBeVisible();
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  }
+});

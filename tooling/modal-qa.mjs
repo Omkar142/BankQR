@@ -1,0 +1,10 @@
+import { chromium, expect } from '@playwright/test';
+const browser=await chromium.launch();
+const page=await browser.newPage({viewport:{width:320,height:800},reducedMotion:'reduce'});
+const payload={v:1,mode:'payment',merchantName:'Kiran Stores',accountHolderName:'Kiran Rao',accountNumber:'001234567890',ifsc:'HDFC0001234',amountPaise:12500,createdAt:'2026-09-18T00:00:00.000Z'};
+await page.goto('http://127.0.0.1:4173/pay/#v1='+Buffer.from(JSON.stringify(payload)).toString('base64url'));
+await page.getByRole('button',{name:'Open banking app',exact:true}).click();
+await expect.poll(()=>page.getByRole('dialog').evaluate(el=>el.contains(document.activeElement))).toBe(true);
+await page.screenshot({path:'artifacts/screenshots/bank-small-viewport.png',fullPage:false});
+console.log(await page.evaluate(()=>({focused:document.activeElement?.outerHTML,skip:document.querySelector('.skip-link')?.getBoundingClientRect().toJSON(),backdrop:document.querySelector('.sheet-backdrop')?.getBoundingClientRect().toJSON(),viewport:{width:innerWidth,height:innerHeight}})));
+await browser.close();
