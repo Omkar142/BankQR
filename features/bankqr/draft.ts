@@ -9,10 +9,15 @@ export function createPayload(values: MerchantFormValues) {
     accountNumber: form.accountNumber,
     ifsc: form.ifsc,
     ...(form.bankName ? { bankName: form.bankName } : {}),
+    ...(form.upiId ? { upiId: form.upiId } : {}),
   });
   const payload = payloadSchema.parse({
-    ...profile,
-    v: 1,
+    merchantName: profile.merchantName,
+    accountHolderName: profile.accountHolderName,
+    accountNumber: profile.accountNumber,
+    ifsc: profile.ifsc,
+    ...(profile.bankName ? { bankName: profile.bankName } : {}),
+    ...(profile.upiId ? { v: 2, upiId: profile.upiId } : { v: 1 }),
     mode: form.mode,
     createdAt: new Date().toISOString(),
     ...(form.mode === "payment"

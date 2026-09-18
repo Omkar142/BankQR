@@ -9,7 +9,7 @@ export function encode(value: unknown): string {
     .replaceAll("+", "-")
     .replaceAll("/", "_")
     .replace(/=+$/, "");
-  const fragment = `#v1=${encoded}`;
+  const fragment = `#v${payload.v}=${encoded}`;
   if (fragment.length > MAX_FRAGMENT_LENGTH)
     throw new Error("QR details are too long.");
   return fragment;

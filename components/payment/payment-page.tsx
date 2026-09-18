@@ -1,10 +1,11 @@
 "use client";
 import { useState, useSyncExternalStore } from "react";
-import { AlertCircle, ArrowLeft } from "lucide-react";
+import { AlertCircle, ArrowLeft, Smartphone } from "lucide-react";
 import Link from "@/components/layout/static-link";
 import { decode } from "@/features/bankqr/decode";
 import { INVALID_LINK } from "@/features/bankqr/constants";
-import type { BankQrPayloadV1 } from "@/features/bankqr/types";
+import type { BankQrPayload } from "@/features/bankqr/types";
+import { buildUpiIntent } from "@/features/bankqr/upi";
 import { parseAmount, amountText, formatCurrency } from "@/lib/currency";
 import { CopyFieldRow } from "./copy-field-row";
 import { SafetyNote } from "./safety-note";
@@ -15,10 +16,19 @@ const subscribe = (listener: () => void) => {
 };
 const snapshot = () => window.location.hash;
 const serverSnapshot = () => null;
-function ValidPayment({ payload }: { payload: BankQrPayloadV1 }) {
+function ValidPayment({ payload }: { payload: BankQrPayload }) {
   const [amount, setAmount] = useState("");
   const amountPaise =
     payload.mode === "payment" ? payload.amountPaise : parseAmount(amount);
+  const upiIntent =
+    payload.v === 2 && amountPaise
+      ? buildUpiIntent({
+          upiId: payload.upiId,
+          payeeName: payload.accountHolderName,
+          amountPaise,
+          ...(payload.reference ? { note: payload.reference } : {}),
+        })
+      : null;
   return (
     <>
       <div className="payment-hero">
@@ -70,6 +80,7 @@ function ValidPayment({ payload }: { payload: BankQrPayloadV1 }) {
           masked
         />
         <CopyFieldRow label="IFSC" value={payload.ifsc} />
+        {payload.v === 2 && <CopyFieldRow label="UPI ID" value={payload.upiId} />}
         {payload.bankName && (
           <div className="detail-row">
             <div className="detail-value">
@@ -86,6 +97,26 @@ function ValidPayment({ payload }: { payload: BankQrPayloadV1 }) {
         )}
       </section>
       <SafetyNote />
+      {payload.v === 2 && (
+        <section className="upi-action" aria-labelledby="upi-action-title">
+          <h2 id="upi-action-title">Pay using UPI</h2>
+          {upiIntent ? (
+            <a className="bq-button primary full" href={upiIntent}>
+              <Smartphone size={20} aria-hidden="true" />
+              Pay with UPI app
+            </a>
+          ) : (
+            <button className="bq-button primary full" type="button" disabled>
+              <Smartphone size={20} aria-hidden="true" />
+              Enter an amount to use UPI
+            </button>
+          )}
+          <p className="small muted">
+            Your phone may show compatible UPI apps. Check the verified payee
+            and amount inside your chosen app before authorising payment.
+          </p>
+        </section>
+      )}
       <BankLaunchSheet />
       <p className="payment-footnote">
         Complete your transfer inside your bank app.

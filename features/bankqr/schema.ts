@@ -33,34 +33,57 @@ const reference = safeText(1, 40).refine(
   (value) => /^[\p{L}\p{N} _\-/]+$/u.test(value),
   "Use letters, numbers, spaces, - _ or /.",
 );
-const fields = {
+const bankFields = {
   merchantName: safeText(2, 80),
   accountHolderName: safeText(2, 100),
   accountNumber: account,
   ifsc,
   bankName: safeText(2, 80).optional(),
 };
-export const profileSchema = z.object(fields).strict();
-const common = {
-  ...fields,
-  v: z.literal(1),
+export const upiIdSchema = z
+  .string()
+  .trim()
+  .refine(
+    (value) => value.length <= 320,
+    "Enter a UPI ID with no more than 320 characters.",
+  )
+  .refine(
+    (value) =>
+      /^[A-Za-z0-9][A-Za-z0-9._-]{1,255}@[A-Za-z0-9][A-Za-z0-9.-]{1,63}$/.test(
+        value,
+      ),
+    "Enter a valid UPI ID, such as name@bank.",
+  );
+export const profileSchema = z
+  .object({ ...bankFields, upiId: upiIdSchema.optional() })
+  .strict();
+const payloadCommon = {
+  ...bankFields,
   createdAt: z.iso.datetime({ offset: true }),
   reference: reference.optional(),
 };
-export const payloadSchema = z.discriminatedUnion("mode", [
-  z.object({ ...common, mode: z.literal("static") }).strict(),
+const payloadModes = <T extends z.ZodRawShape>(versionFields: T) => [
+  z
+    .object({ ...payloadCommon, ...versionFields, mode: z.literal("static") })
+    .strict(),
   z
     .object({
-      ...common,
+      ...payloadCommon,
+      ...versionFields,
       mode: z.literal("payment"),
       amountPaise: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
     })
     .strict(),
+] as const;
+export const payloadSchema = z.union([
+  ...payloadModes({ v: z.literal(1) }),
+  ...payloadModes({ v: z.literal(2), upiId: upiIdSchema }),
 ]);
 export const merchantFormSchema = z
   .object({
-    ...fields,
+    ...bankFields,
     bankName: z.union([z.literal(""), safeText(2, 80)]),
+    upiId: z.union([z.literal(""), upiIdSchema]).default(""),
     confirmAccountNumber: account,
     mode: z.enum(["static", "payment"]),
     amount: z.string(),

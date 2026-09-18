@@ -130,7 +130,7 @@ test("production pay has no console errors or CSP violations", async ({
   await page.goto("/pay/" + hash(payload));
   await page.getByRole("heading", { name: "Kiran Stores" }).waitFor();
   await page
-    .getByRole("button", { name: "Open banking app", exact: true })
+    .getByRole("button", { name: "How to make a bank transfer", exact: true })
     .click();
   await page.getByRole("dialog").waitFor();
   expect(errors).toEqual([]);

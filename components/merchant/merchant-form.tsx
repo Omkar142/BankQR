@@ -22,6 +22,7 @@ const defaults: MerchantFormValues = {
   confirmAccountNumber: "",
   ifsc: "",
   bankName: "",
+  upiId: "",
   mode: "static",
   amount: "",
   reference: "",
@@ -127,6 +128,7 @@ export function MerchantForm() {
       | "confirmAccountNumber"
       | "ifsc"
       | "bankName"
+      | "upiId"
       | "amount"
       | "reference"
     >,
@@ -234,6 +236,16 @@ export function MerchantForm() {
                     maxLength: 80,
                   })}
                 </div>
+                <div className="upi-field">
+                  {field("upiId", "UPI ID (optional)", {
+                    placeholder: "e.g. name@bank",
+                    maxLength: 320,
+                  })}
+                  <p className="small muted">
+                    Adds a Pay with UPI app option. The customer&apos;s phone
+                    decides which compatible apps can open it.
+                  </p>
+                </div>
               </section>
               {values.mode === "payment" && (
                 <section className="payment-fields">
@@ -272,6 +284,9 @@ export function MerchantForm() {
                   </p>
                 )}
                 <p className="small muted">Details provided by merchant</p>
+                {values.upiId?.trim() && (
+                  <p className="small numeric">UPI: {values.upiId.trim()}</p>
+                )}
               </section>
               <label className="confirmation">
                 <input

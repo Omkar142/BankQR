@@ -1,11 +1,12 @@
 import { payloadSchema } from "./schema";
 import { MAX_FRAGMENT_LENGTH, MAX_JSON_BYTES } from "./constants";
-import type { BankQrPayloadV1 } from "./types";
-export function decode(hash: string): BankQrPayloadV1 | null {
+import type { BankQrPayload } from "./types";
+export function decode(hash: string): BankQrPayload | null {
   try {
-    if (hash.length > MAX_FRAGMENT_LENGTH || !/^#v1=[A-Za-z0-9_-]+$/.test(hash))
+    const match = hash.match(/^#v([12])=([A-Za-z0-9_-]+)$/);
+    if (hash.length > MAX_FRAGMENT_LENGTH || !match)
       return null;
-    const encoded = hash.slice(4);
+    const [, version, encoded] = match;
     const binary = atob(encoded.replaceAll("-", "+").replaceAll("_", "/"));
     if (
       binary.length > MAX_JSON_BYTES ||
@@ -19,7 +20,9 @@ export function decode(hash: string): BankQrPayloadV1 | null {
       Uint8Array.from(binary, (char) => char.charCodeAt(0)),
     );
     const result = payloadSchema.safeParse(JSON.parse(text));
-    return result.success ? result.data : null;
+    return result.success && String(result.data.v) === version
+      ? result.data
+      : null;
   } catch {
     return null;
   }

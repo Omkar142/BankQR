@@ -4,6 +4,7 @@ import type {
   merchantFormSchema,
   profileSchema,
 } from "./schema";
-export type BankQrPayloadV1 = z.infer<typeof payloadSchema>;
+export type BankQrPayload = z.infer<typeof payloadSchema>;
+export type BankQrPayloadV1 = Extract<BankQrPayload, { v: 1 }>;
 export type MerchantFormValues = z.input<typeof merchantFormSchema>;
 export type MerchantProfile = z.infer<typeof profileSchema>;

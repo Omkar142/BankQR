@@ -7,8 +7,8 @@ import { maskAccount } from "@/features/bankqr/normalize";
 import { copyText } from "@/lib/clipboard";
 import { downloadPng, qrFilename } from "@/lib/download";
 import { formatCurrency } from "@/lib/currency";
-import type { BankQrPayloadV1 } from "@/features/bankqr/types";
-export type QrResult = { payload: BankQrPayloadV1; url: string; image: string };
+import type { BankQrPayload } from "@/features/bankqr/types";
+export type QrResult = { payload: BankQrPayload; url: string; image: string };
 export function QrResultCard({
   result,
   onEdit,

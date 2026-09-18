@@ -5,9 +5,9 @@ import { banks } from "@/banks/registry";
 export function BankLaunchSheet() {
   return (
     <Dialog.Root>
-      <Dialog.Trigger className="bq-button primary full">
+      <Dialog.Trigger className="bq-button secondary full">
         <Landmark size={20} />
-        Open banking app
+        How to make a bank transfer
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop className="sheet-backdrop" />

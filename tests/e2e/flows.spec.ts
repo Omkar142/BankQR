@@ -13,8 +13,14 @@ const payload = {
   amountPaise: 12500,
   createdAt: "2026-09-18T00:00:00.000Z",
 };
-const hash = (data: unknown) =>
-  "#v1=" + Buffer.from(JSON.stringify(data)).toString("base64url");
+const hash = (data: unknown) => {
+  const version =
+    typeof data === "object" && data !== null && "v" in data
+      ? String(data.v)
+      : "1";
+  return `#v${version}=` +
+    Buffer.from(JSON.stringify(data)).toString("base64url");
+};
 test("merchant generates real scannable PNG, saves explicitly, edits invalidate QR", async ({
   page,
 }) => {
@@ -119,6 +125,31 @@ test("merchant can offer an exact UPI app intent with manual transfer fallback",
     page.getByRole("button", { name: "How to make a bank transfer" }),
   ).toBeVisible();
 });
+test("static UPI requires a valid customer amount before app launch", async ({
+  page,
+}) => {
+  await page.goto(
+    "/pay/" +
+      hash({
+        ...payload,
+        v: 2,
+        mode: "static",
+        upiId: "kiran@bank",
+        amountPaise: undefined,
+      }),
+  );
+  await expect(
+    page.getByRole("button", { name: "Enter an amount to use UPI" }),
+  ).toBeDisabled();
+  await page.getByLabel("Amount to pay").fill("1.001");
+  await expect(page.getByText(/Enter an amount greater than/)).toBeVisible();
+  await expect(page.getByRole("link", { name: "Pay with UPI app" })).toHaveCount(0);
+  await page.getByLabel("Amount to pay").fill("25.50");
+  await expect(page.getByRole("link", { name: "Pay with UPI app" })).toHaveAttribute(
+    "href",
+    /upi:\/\/pay\?.*am=25\.50/,
+  );
+});
 test("payer masks account, copies full value, traps sheet focus and changes hash fail closed", async ({
   page,
   context,
@@ -137,7 +168,7 @@ test("payer masks account, copies full value, traps sheet focus and changes hash
     "001234567890",
   );
   await page
-    .getByRole("button", { name: "Open banking app", exact: true })
+    .getByRole("button", { name: "How to make a bank transfer", exact: true })
     .click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await expect(
@@ -146,7 +177,7 @@ test("payer masks account, copies full value, traps sheet focus and changes hash
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(
-    page.getByRole("button", { name: "Open banking app", exact: true }),
+    page.getByRole("button", { name: "How to make a bank transfer", exact: true }),
   ).toBeFocused();
   await page.evaluate(() => {
     location.hash = "v1=bad";
@@ -207,7 +238,7 @@ test("accessible payer, reduced motion and 320px layout", async ({ page }) => {
   ).toBe(true);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page
-    .getByRole("button", { name: "Open banking app", exact: true })
+    .getByRole("button", { name: "How to make a bank transfer", exact: true })
     .click();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   for (let i = 0; i < 10; i++) {

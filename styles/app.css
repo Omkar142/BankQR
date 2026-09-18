@@ -467,6 +467,12 @@ input.bq-input {
   grid-template-columns: 1fr 1fr;
   gap: var(--bq-s4);
 }
+.upi-field {
+  margin-top: var(--bq-s4);
+}
+.upi-field > .small {
+  margin-top: var(--bq-s2);
+}
 .payment-fields {
   padding-top: var(--bq-s4);
 }
@@ -709,6 +715,15 @@ input.bq-input {
 }
 .safety-note svg {
   flex-shrink: 0;
+}
+.upi-action {
+  margin: var(--bq-s5) 0;
+}
+.upi-action h2 {
+  margin-bottom: var(--bq-s3);
+}
+.upi-action .small {
+  margin-top: var(--bq-s3);
 }
 .payment-footnote {
   text-align: center;

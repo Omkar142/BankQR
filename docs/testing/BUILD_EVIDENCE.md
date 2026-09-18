@@ -55,6 +55,8 @@ GitHub Pages deployment added afterward with a test-first base-path contract. Th
 
 The exported build was published to the repository's `gh-pages` branch at `https://omkar142.github.io/BankQR/`. The same merchant-to-customer browser journey passed against that public URL after the QA harness was hardened to wait for client hydration on a network host.
 
+UPI intent support followed with a preserved RED checkpoint (`22697cc`), strict V1/V2 decoding, bounded merchant VPA validation and exact `upi://pay` construction. Focused GREEN: 73 tests. Final unit coverage: 87 tests, 97.43% statements, 92.85% branches, 100% functions and 97.22% lines. The 26-check desktop/mobile browser suite also covers merchant-to-payer UPI and static-amount gating. See `docs/testing/UPI_INTENT_TDD.md`. Physical installed-app resolution remains intentionally unclaimed.
+
 Review verdict: input boundaries resolved with shared `#788b9e` control border; modal capture resolved. `bank-small-viewport.png` confirms full backdrop coverage and no visible background skip link. Runtime bounds place the hidden skip link above the viewport and focus within the modal. Earlier full-page capture stitched fixed elements at an incorrect scroll position. No material findings remain.
 
 The documenter subagent hit its usage limit. Primary agent completed `DESIGN.md` and `.impeccable/design.json`; visual review itself completed independently.

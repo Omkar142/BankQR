@@ -12,8 +12,9 @@ export default function Privacy() {
         <p>
           A BankQR link contains the merchant name, account holder, account
           number, IFSC, optional bank name, creation time and any payment amount
-          or reference. These details are encoded, not encrypted or verified.
-          Anyone with the link or QR can read and change them.
+          or reference. A UPI-enabled BankQR also contains the merchant-provided
+          UPI ID. These details are encoded, not encrypted or verified. Anyone
+          with the link or QR can read and change them.
         </p>
         <h2>What stays on your device</h2>
         <p>
@@ -50,6 +51,13 @@ export default function Privacy() {
           BankQR never requests your banking password, OTP, PIN, card security
           code or biometric information. Enter banking credentials only in your
           official banking environment.
+        </p>
+        <h2>Opening a UPI app</h2>
+        <p>
+          Choosing “Pay with UPI app” passes the merchant-provided UPI ID,
+          account-holder name, amount and optional reference to an app selected
+          by your operating system. That app and its provider apply their own
+          privacy practices. BankQR does not receive a payment result.
         </p>
       </main>
     </AppShell>
