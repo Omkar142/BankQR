@@ -29,7 +29,7 @@ Source: `BANKQR_MASTER_BLUEPRINT.md`, especially documents 05–11.
 
 ## Scope and honest limits
 
-No production deployment or real phone test has occurred. Chrome mobile emulation is not Android, Samsung browser or iPhone Safari validation. The <=90-second merchant workflow criterion needs human observation. Native sharing and physical printed-QR readability need device testing. No bank integrations are claimed.
+A public GitHub Pages validation deployment has occurred, but no real phone test has. Chrome mobile emulation is not Android, Samsung browser or iPhone Safari validation. The <=90-second merchant workflow criterion needs human observation. Native sharing and physical printed-QR readability need device testing. No bank integrations are claimed.
 
 The phase plan was used as implementation order, but domain work and UI test preparation overlapped scaffold verification; individual phase gates were not all isolated commits. This empty workspace was not initialized as a Git repository. No checkpoint commits claimed. The primitive foundation is validated within actual screens rather than an added public test route.
 
@@ -52,6 +52,8 @@ Final local results on Node 22.14.0 / pnpm 9.15.4:
 | Independent visual review | Final disposition: `ship` |
 
 GitHub Pages deployment added afterward with a test-first base-path contract. The first focused run failed 5 new assertions because QR links ignored `/BankQR` and invalid base paths were accepted. After implementation, the focused suite passed 58 tests. A Pages-mode build and real browser flow then passed at `/BankQR` without resource errors: landing to creation, QR generation, and customer page navigation. The full unit suite now contains 72 tests.
+
+The exported build was published to the repository's `gh-pages` branch at `https://omkar142.github.io/BankQR/`. The same merchant-to-customer browser journey passed against that public URL after the QA harness was hardened to wait for client hydration on a network host.
 
 Review verdict: input boundaries resolved with shared `#788b9e` control border; modal capture resolved. `bank-small-viewport.png` confirms full backdrop coverage and no visible background skip link. Runtime bounds place the hidden skip link above the viewport and focus within the modal. Earlier full-page capture stitched fixed elements at an incorrect scroll position. No material findings remain.
 

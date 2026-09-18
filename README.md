@@ -36,7 +36,7 @@ Browser tests use the static `out/` output, so rebuild after code changes. They 
 
 ## Deploy
 
-The repository includes `.github/workflows/pages.yml`, which verifies and deploys `main` to GitHub Pages with the `/BankQR` base path. In GitHub, open **Settings → Pages**, select **GitHub Actions** as the source once, then run or re-run **Deploy BankQR to GitHub Pages**. The expected URL is `https://omkar142.github.io/BankQR/`.
+The validation build is live at `https://omkar142.github.io/BankQR/` from the repository's `gh-pages` branch, with the `/BankQR` base path. Run `BANKQR_PAGES_URL=https://omkar142.github.io/BankQR/ node tooling/pages-qa.mjs` (PowerShell: `$env:BANKQR_PAGES_URL='https://omkar142.github.io/BankQR/'`) to exercise the deployed merchant-to-customer flow.
 
 For another static HTTPS host, build with `pnpm build` and upload `out/`. No API routes, database or server process are required. The build generates `out/_headers` with CSP script hashes and other headers. On a host that does not understand `_headers`, configure equivalent response headers. Root hosting needs no environment variable; subpath hosting must set `NEXT_PUBLIC_BASE_PATH` to that path while building.
 

@@ -10,8 +10,8 @@
 - [x] Accessible manual banking guidance, landing, privacy and terms.
 - [x] Local production gates, QR image decoding, privacy/accessibility/browser coverage.
 - [x] Independent visual review: ship; DESIGN and handoff documentation complete.
-- [x] Publish source to `Omkar142/BankQR` and add a verified GitHub Pages workflow/base path.
-- [ ] Confirm GitHub Pages is enabled with GitHub Actions as its source and the live workflow succeeds.
+- [x] Publish source to `Omkar142/BankQR` and verify the `/BankQR` deployment base path.
+- [x] Publish the static validation build from `gh-pages` and pass the live merchant-to-customer browser flow.
 - [ ] Physical second-phone scans, print readability, native share and bank workflow validation.
 - [ ] Human-observed <=90-second merchant creation acceptance.
 
