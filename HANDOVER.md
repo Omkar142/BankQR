@@ -10,4 +10,4 @@ Important decisions: exact integer paise; strict bounded fragment decode; ordina
 
 Cross-vendor review could not run: Claude returned HTTP 401 invalid API key. Separate adversarial self-review performed. Independent visual review requested higher-contrast input boundaries and verification of modal focus at 320px; both resolved, final disposition `ship`. The modal screenshot anomaly was full-page stitching; viewport capture and focus tests confirm correct behavior. The documentation subagent hit a usage limit, so the primary agent wrote DESIGN.md and its sidecar.
 
-Not deployed. Physical phone scans, banking-app compatibility and merchant timing remain field-validation gates.
+Source is published at `https://github.com/Omkar142/BankQR`. A GitHub Pages workflow and `/BankQR` deployment path are implemented and browser-verified locally. GitHub Pages may still need its repository source enabled once under Settings > Pages before the workflow can deploy. Physical phone scans, banking-app compatibility and merchant timing remain field-validation gates.

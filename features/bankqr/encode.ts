@@ -14,7 +14,11 @@ export function encode(value: unknown): string {
     throw new Error("QR details are too long.");
   return fragment;
 }
-export function paymentUrl(value: unknown, origin: string): string {
+export function paymentUrl(
+  value: unknown,
+  origin: string,
+  basePath = "",
+): string {
   const parsed = new URL(origin);
   const loopback = ["localhost", "127.0.0.1", "[::1]"].includes(
     parsed.hostname,
@@ -29,5 +33,13 @@ export function paymentUrl(value: unknown, origin: string): string {
     parsed.pathname !== "/"
   )
     throw new Error("Use an HTTPS site to generate a shareable QR.");
-  return `${parsed.origin}/pay/${encode(value)}`;
+  const segments = basePath.split("/").filter(Boolean);
+  if (
+    basePath &&
+    (!/^\/(?:[A-Za-z0-9._~-]+\/?)*$/.test(basePath) ||
+      basePath.endsWith("/") ||
+      segments.some((segment) => segment === "." || segment === ".."))
+  )
+    throw new Error("Invalid deployment base path.");
+  return `${parsed.origin}${basePath}/pay/${encode(value)}`;
 }

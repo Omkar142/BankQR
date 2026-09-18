@@ -36,7 +36,11 @@ Browser tests use the static `out/` output, so rebuild after code changes. They 
 
 ## Deploy
 
-Upload `out/` to a static HTTPS host, such as Cloudflare Pages. Build command: `pnpm build`; output directory: `out`. No environment variables, API routes, database or server process required. The build generates `out/_headers` with CSP script hashes and other headers. On a host that does not understand `_headers`, configure equivalent response headers. Hosting at the origin root is required.
+The repository includes `.github/workflows/pages.yml`, which verifies and deploys `main` to GitHub Pages with the `/BankQR` base path. In GitHub, open **Settings → Pages**, select **GitHub Actions** as the source once, then run or re-run **Deploy BankQR to GitHub Pages**. The expected URL is `https://omkar142.github.io/BankQR/`.
+
+For another static HTTPS host, build with `pnpm build` and upload `out/`. No API routes, database or server process are required. The build generates `out/_headers` with CSP script hashes and other headers. On a host that does not understand `_headers`, configure equivalent response headers. Root hosting needs no environment variable; subpath hosting must set `NEXT_PUBLIC_BASE_PATH` to that path while building.
+
+GitHub Pages ignores `_headers`, so the build also injects a CSP meta fallback. Response-only protections such as `frame-ancestors` still require a host that supports custom headers. The GitHub Pages deployment is appropriate for phone validation; use a header-capable host before broader production use.
 
 Before merchant field testing, validate a QR scan from a second physical phone, scanner fragment preservation, native share/clipboard behavior and the relevant banking-app workflow. These device and deployment checks cannot be substituted by browser emulation.
 

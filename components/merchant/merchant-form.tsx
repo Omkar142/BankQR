@@ -12,6 +12,7 @@ import { paymentUrl } from "@/features/bankqr/encode";
 import { normalizeAccount, normalizeIfsc } from "@/features/bankqr/normalize";
 import type { MerchantFormValues } from "@/features/bankqr/types";
 import { clearProfile, loadProfile, saveProfile } from "@/lib/local-storage";
+import { basePath } from "@/lib/base-path";
 import { parseAmount, formatCurrency } from "@/lib/currency";
 import { QrResultCard, type QrResult } from "./qr-result-card";
 const defaults: MerchantFormValues = {
@@ -56,7 +57,7 @@ export function MerchantForm() {
     setNotice("");
     try {
       const { payload } = createPayload(input);
-      const url = paymentUrl(payload, location.origin);
+      const url = paymentUrl(payload, location.origin, basePath);
       const image = await QRCode.toDataURL(url, {
         width: 720,
         margin: 4,

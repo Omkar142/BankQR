@@ -43,13 +43,15 @@ Final local results on Node 22.14.0 / pnpm 9.15.4:
 |---|---|
 | `pnpm lint` | PASS, no findings |
 | `pnpm typecheck` | PASS, strict production and test types included |
-| `pnpm test:coverage` | PASS, 67 tests; statements 97%, branches 94.02%, functions 100%, lines 96.77% |
+| `pnpm test:coverage` | PASS before deployment work, 67 tests; statements 97%, branches 94.02%, functions 100%, lines 96.77% |
 | `pnpm test:e2e` | PASS, 22 tests in 18.4 seconds, desktop and mobile Chromium |
 | `pnpm build` | PASS, all six page types statically exported, hosting headers generated |
 | `pnpm audit` | PASS, no known vulnerabilities |
 | Visual capture | No horizontal overflow or console errors at 320, 390, 1440px |
 | Impeccable detector | No findings (`[]`) |
 | Independent visual review | Final disposition: `ship` |
+
+GitHub Pages deployment added afterward with a test-first base-path contract. The first focused run failed 5 new assertions because QR links ignored `/BankQR` and invalid base paths were accepted. After implementation, the focused suite passed 58 tests. A Pages-mode build and real browser flow then passed at `/BankQR` without resource errors: landing to creation, QR generation, and customer page navigation. The full unit suite now contains 72 tests.
 
 Review verdict: input boundaries resolved with shared `#788b9e` control border; modal capture resolved. `bank-small-viewport.png` confirms full backdrop coverage and no visible background skip link. Runtime bounds place the hidden skip link above the viewport and focus within the modal. Earlier full-page capture stitched fixed elements at an incorrect scroll position. No material findings remain.
 

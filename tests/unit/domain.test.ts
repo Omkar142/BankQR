@@ -38,6 +38,16 @@ describe("fragment protocol", () => {
     expect(url.search).toBe("");
     expect(decode(url.hash)).toEqual(base);
   });
+  it("creates fragment-only URLs under a static hosting base path", () => {
+    const url = new URL(paymentUrl(base, "https://omkar142.github.io", "/BankQR"));
+    expect(url.pathname).toBe("/BankQR/pay/");
+    expect(url.search).toBe("");
+    expect(decode(url.hash)).toEqual(base);
+  });
+  it.each(["BankQR", "/../BankQR", "/BankQR?x=1", "/Bank QR"])(
+    "rejects unsafe base path %s",
+    (basePath) => expect(() => paymentUrl(base, "https://bankqr.example", basePath)).toThrow(),
+  );
   it.each([
     "http://example.com",
     "https://u:p@example.com",

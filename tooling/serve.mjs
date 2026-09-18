@@ -2,6 +2,8 @@ import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { resolve, extname, sep } from "node:path";
 const root = resolve("out");
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const port = Number(process.env.BANKQR_PREVIEW_PORT ?? 4173);
 const mime = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript",
@@ -23,9 +25,14 @@ createServer(async (req, res) => {
       const match = line.match(/^  ([\w-]+): (.+)$/);
       if (match) headers[match[1]] = match[2];
     }
-    const pathname = decodeURIComponent(
+    let pathname = decodeURIComponent(
       new URL(req.url, "http://localhost").pathname,
     );
+    if (basePath) {
+      if (pathname !== basePath && !pathname.startsWith(`${basePath}/`))
+        throw new Error("Invalid base path");
+      pathname = pathname.slice(basePath.length) || "/";
+    }
     let file = resolve(root, "." + pathname);
     if (file !== root && !file.startsWith(root + sep))
       throw new Error("Invalid path");
@@ -40,6 +47,6 @@ createServer(async (req, res) => {
     res.writeHead(404, { ...headers, "Content-Type": "text/html" });
     res.end(await readFile(resolve(root, "404.html")).catch(() => "Not found"));
   }
-}).listen(4173, "127.0.0.1", () =>
-  console.log("BankQR preview: http://127.0.0.1:4173"),
+}).listen(port, "127.0.0.1", () =>
+  console.log(`BankQR preview: http://127.0.0.1:${port}${basePath || ""}`),
 );

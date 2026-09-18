@@ -11,9 +11,9 @@ async function walk(dir) {
     )
   ).flat();
 }
+const htmlFiles = (await walk("out")).filter((file) => file.endsWith(".html"));
 const hashes = new Set();
-for (const file of await walk("out")) {
-  if (!file.endsWith(".html")) continue;
+for (const file of htmlFiles) {
   const html = await readFile(file, "utf8");
   for (const match of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)) {
     if (!/\bsrc=/.test(match[1]))
@@ -23,8 +23,21 @@ for (const file of await walk("out")) {
   }
 }
 const csp = `default-src 'self'; script-src 'self' ${[...hashes].join(" ")}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`;
+const metaCsp = csp.replace("; frame-ancestors 'none'", "");
+for (const file of htmlFiles) {
+  const html = await readFile(file, "utf8");
+  if (!html.includes('http-equiv="Content-Security-Policy"')) {
+    await writeFile(
+      file,
+      html.replace(
+        "<head>",
+        `<head><meta http-equiv="Content-Security-Policy" content="${metaCsp}">`,
+      ),
+    );
+  }
+}
 await writeFile(
   "out/_headers",
   `/*\n  Content-Security-Policy: ${csp}\n  Referrer-Policy: no-referrer\n  X-Content-Type-Options: nosniff\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  X-Frame-Options: DENY\n`,
 );
-console.log("Generated static hosting security headers.");
+console.log("Generated static hosting security headers and CSP meta fallback.");
