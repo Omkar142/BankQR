@@ -79,6 +79,46 @@ test("payment mode requires amount and confirms destructive mode switch", async 
     "125.00",
   );
 });
+test("merchant can offer an exact UPI app intent with manual transfer fallback", async ({
+  page,
+}) => {
+  await page.goto("/create/");
+  await page.getByRole("radio", { name: "Payment QR", exact: true }).check();
+  await page.getByLabel("Merchant name", { exact: true }).fill("Kiran Stores");
+  await page
+    .getByLabel("Account holder name", { exact: true })
+    .fill("Kiran Rao");
+  await page.getByLabel("Account number", { exact: true }).fill("001234567890");
+  await page
+    .getByLabel("Confirm account number", { exact: true })
+    .fill("001234567890");
+  await page.getByLabel("IFSC", { exact: true }).fill("HDFC0001234");
+  await page.getByLabel("UPI ID (optional)", { exact: true }).fill("kiran@bank");
+  await page.getByLabel("Amount (₹)", { exact: true }).fill("125.00");
+  await page.getByLabel("Reference (optional)").fill("INV-1");
+  await page
+    .getByLabel("I confirm these receiving details are correct.")
+    .check();
+  await page
+    .getByRole("button", { name: "Generate BankQR", exact: true })
+    .click();
+  const paymentUrl = await page
+    .getByRole("link", { name: "Test payment page" })
+    .getAttribute("href");
+  expect(paymentUrl).toContain("/pay/#v2=");
+  await page.goto(paymentUrl!);
+  const upiAction = page.getByRole("link", { name: "Pay with UPI app" });
+  await expect(upiAction).toBeVisible();
+  const intent = await upiAction.getAttribute("href");
+  expect(intent).toContain("upi://pay?");
+  expect(intent).toContain("pa=kiran%40bank");
+  expect(intent).toContain("am=125.00");
+  expect(intent).not.toContain("001234567890");
+  expect(intent).not.toContain("HDFC0001234");
+  await expect(
+    page.getByRole("button", { name: "How to make a bank transfer" }),
+  ).toBeVisible();
+});
 test("payer masks account, copies full value, traps sheet focus and changes hash fail closed", async ({
   page,
   context,

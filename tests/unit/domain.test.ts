@@ -15,8 +15,8 @@ const base = {
   ifsc: "HDFC0001234",
   createdAt: "2026-09-18T00:00:00.000Z",
 };
-const raw = (value: unknown) =>
-  "#v1=" + Buffer.from(JSON.stringify(value)).toString("base64url");
+const raw = (value: unknown, version = 1) =>
+  `#v${version}=` + Buffer.from(JSON.stringify(value)).toString("base64url");
 describe("fragment protocol", () => {
   it("round trips Unicode and leading zeros", () => {
     expect(decode(encode(base))).toEqual(base);
@@ -70,6 +70,34 @@ describe("fragment protocol", () => {
         }),
       ),
     ).toMatchObject({ amountPaise: 125 }));
+  it("round trips a V2 payload with a UPI payment address", () => {
+    const upiPayload = {
+      ...base,
+      v: 2,
+      upiId: "kiran.store@bank",
+      mode: "payment",
+      amountPaise: 125,
+    } as const;
+    expect(encode(upiPayload)).toMatch(/^#v2=/);
+    expect(decode(encode(upiPayload))).toEqual(upiPayload);
+  });
+  it("keeps fragment and payload versions consistent", () => {
+    expect(decode(raw({ ...base, v: 2, upiId: "kiran@bank" }, 1))).toBeNull();
+    expect(decode(raw(base, 2))).toBeNull();
+  });
+  it.each([
+    "",
+    "missing-at",
+    "two@@bank",
+    "space name@bank",
+    "name@",
+    "name@bank<script>",
+    `name@${"b".repeat(65)}`,
+  ])("rejects unsafe UPI ID %j", (upiId) =>
+    expect(
+      payloadSchema.safeParse({ ...base, v: 2, upiId }).success,
+    ).toBe(false),
+  );
   it.each([
     { v: 2 },
     { mode: "payment" },
@@ -114,6 +142,7 @@ describe("fragment protocol", () => {
       mode: "static",
       amount: "",
       reference: "",
+      upiId: "",
       confirmed: false,
     };
     expect(merchantFormSchema.safeParse(form).success).toBe(false);
@@ -124,6 +153,14 @@ describe("fragment protocol", () => {
         confirmed: true,
       }).success,
     ).toBe(true);
+    expect(
+      merchantFormSchema.safeParse({
+        ...form,
+        confirmAccountNumber: "001234567890",
+        confirmed: true,
+        upiId: "not a vpa",
+      }).success,
+    ).toBe(false);
   });
 });
 describe("exact currency", () => {
