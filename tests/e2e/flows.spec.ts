@@ -124,6 +124,20 @@ test("merchant can offer an exact UPI app intent with manual transfer fallback",
   await expect(
     page.getByRole("button", { name: "How to make a bank transfer" }),
   ).toBeVisible();
+  const transferAction = page.getByRole("button", {
+    name: "How to make a bank transfer",
+  });
+  await expect(transferAction).toHaveClass(/primary/);
+  await expect(upiAction).toHaveClass(/secondary/);
+  expect(
+    await transferAction.evaluate(
+      (button, upi) =>
+        Boolean(
+          button.compareDocumentPosition(upi) & Node.DOCUMENT_POSITION_FOLLOWING,
+        ),
+      await upiAction.elementHandle(),
+    ),
+  ).toBe(true);
 });
 test("static UPI requires a valid customer amount before app launch", async ({
   page,
@@ -210,6 +224,9 @@ test("bank details are prominent and instructions avoid a fake app list", async 
   await page
     .getByRole("button", { name: "How to make a bank transfer" })
     .click();
+  await expect(page.getByRole("dialog")).toContainText(
+    "account-and-IFSC transfer",
+  );
   await expect(page.getByRole("dialog")).toContainText("Add the beneficiary");
   await expect(page.getByRole("dialog")).not.toContainText("State Bank of India");
 });

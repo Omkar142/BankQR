@@ -1,11 +1,10 @@
 "use client";
 import { Dialog } from "@base-ui/react/dialog";
 import { Landmark, X } from "lucide-react";
-import { banks } from "@/banks/registry";
 export function BankLaunchSheet() {
   return (
     <Dialog.Root>
-      <Dialog.Trigger className="bq-button secondary full">
+      <Dialog.Trigger className="bq-button primary full">
         <Landmark size={20} />
         How to make a bank transfer
       </Dialog.Trigger>
@@ -21,26 +20,27 @@ export function BankLaunchSheet() {
               <X size={20} />
             </Dialog.Close>
           </div>
-          <Dialog.Description>
-            Open your banking app manually
-          </Dialog.Description>
+          <Dialog.Description>Open your banking app manually</Dialog.Description>
           <p className="muted">
-            Switch to your official bank app, choose NEFT or IMPS, and use the
-            details you copied. Your bank may ask you to add a beneficiary
-            first.
+            For account-and-IFSC transfers, BankQR cannot open or fill your bank
+            app automatically. Keep this page open to copy each detail.
           </p>
-          <ul className="bank-list">
-            {banks.map((bank) => (
-              <li key={bank.id}>
-                <Landmark size={20} aria-hidden="true" />
-                <span>{bank.displayName}</span>
-                <span className="field-caption">Manual</span>
-              </li>
-            ))}
-          </ul>
+          <ol className="transfer-steps">
+            <li>
+              Open your official bank app and choose an account-and-IFSC transfer,
+              such as IMPS or NEFT.
+            </li>
+            <li>
+              Add the beneficiary using the account number, IFSC and name above.
+            </li>
+            <li>
+              Enter the amount and reference, if shown. Review the beneficiary
+              shown by your bank before authorising.
+            </li>
+          </ol>
           <p className="small muted">
-            Using another bank? The same steps apply. These names are guidance,
-            not bank integrations. BankQR cannot confirm your transfer.
+            Your bank may require beneficiary activation. BankQR cannot confirm
+            whether a transfer was made.
           </p>
           <Dialog.Close className="bq-button secondary full">
             Back to payment details

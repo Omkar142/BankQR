@@ -7,10 +7,12 @@ export function CopyFieldRow({
   label,
   value,
   masked = false,
+  prominent = false,
 }: {
   label: string;
   value: string;
   masked?: boolean;
+  prominent?: boolean;
 }) {
   const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
   const [revealed, setRevealed] = useState(false);
@@ -23,7 +25,7 @@ export function CopyFieldRow({
     if (ok) timer.current = setTimeout(() => setState("idle"), 1200);
   }
   return (
-    <div className="detail-row">
+    <div className={`detail-row${prominent ? " detail-row-prominent" : ""}`}>
       <div className="detail-value">
         <span className="field-caption">{label}</span>
         <span className="numeric">
@@ -33,21 +35,23 @@ export function CopyFieldRow({
       <div className="row-actions">
         {masked && (
           <button
-            className="icon-button"
+            className={prominent ? "detail-reveal" : "icon-button"}
             type="button"
             onClick={() => setRevealed(!revealed)}
             aria-label={`${revealed ? "Hide" : "Reveal"} account number`}
           >
             {revealed ? <EyeOff size={18} /> : <Eye size={18} />}
+            {prominent && <span>{revealed ? "Hide" : "Reveal"}</span>}
           </button>
         )}
         <button
           type="button"
-          className="icon-button"
+          className={prominent ? "detail-copy" : "icon-button"}
           aria-label={`Copy ${label.toLowerCase()}`}
           onClick={copy}
         >
           {state === "copied" ? <Check size={18} /> : <Copy size={18} />}
+          {prominent && <span>{state === "copied" ? "Copied" : "Copy"}</span>}
         </button>
       </div>
       <span className="sr-only" role="status">

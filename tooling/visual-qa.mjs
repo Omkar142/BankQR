@@ -53,7 +53,7 @@ for (const [name, width, height] of [
     );
   }
   await page
-    .getByRole("button", { name: "Open banking app", exact: true })
+    .getByRole("button", { name: "How to make a bank transfer", exact: true })
     .click();
   await page.getByRole("dialog").waitFor();
   await page.getByRole("button", { name: "Close bank guidance" }).focus();

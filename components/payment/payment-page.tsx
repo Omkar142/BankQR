@@ -69,17 +69,22 @@ function ValidPayment({ payload }: { payload: BankQrPayload }) {
         )}
       </div>
       <section className="payment-details" aria-labelledby="details-heading">
-        <h2 id="details-heading">Payment details</h2>
-        <CopyFieldRow
-          label="Account holder"
-          value={payload.accountHolderName}
-        />
+        <h2 id="details-heading">Bank transfer details</h2>
+        <p className="payment-details-intro">
+          Copy each detail as your bank asks for it.
+        </p>
         <CopyFieldRow
           label="Account number"
           value={payload.accountNumber}
           masked
+          prominent
         />
-        <CopyFieldRow label="IFSC" value={payload.ifsc} />
+        <CopyFieldRow label="IFSC" value={payload.ifsc} prominent />
+        <CopyFieldRow
+          label="Account holder"
+          value={payload.accountHolderName}
+          prominent
+        />
         {payload.v === 2 && <CopyFieldRow label="UPI ID" value={payload.upiId} />}
         {payload.bankName && (
           <div className="detail-row">
@@ -97,16 +102,17 @@ function ValidPayment({ payload }: { payload: BankQrPayload }) {
         )}
       </section>
       <SafetyNote />
+      <BankLaunchSheet />
       {payload.v === 2 && (
         <section className="upi-action" aria-labelledby="upi-action-title">
-          <h2 id="upi-action-title">Pay using UPI</h2>
+          <h2 id="upi-action-title">Or pay using UPI</h2>
           {upiIntent ? (
-            <a className="bq-button primary full" href={upiIntent}>
+            <a className="bq-button secondary full" href={upiIntent}>
               <Smartphone size={20} aria-hidden="true" />
               Pay with UPI app
             </a>
           ) : (
-            <button className="bq-button primary full" type="button" disabled>
+            <button className="bq-button secondary full" type="button" disabled>
               <Smartphone size={20} aria-hidden="true" />
               Enter an amount to use UPI
             </button>
@@ -117,7 +123,6 @@ function ValidPayment({ payload }: { payload: BankQrPayload }) {
           </p>
         </section>
       )}
-      <BankLaunchSheet />
       <p className="payment-footnote">
         Complete your transfer inside your bank app.
         <br />

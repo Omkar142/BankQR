@@ -50,10 +50,11 @@ Before merchant field testing, validate a QR scan from a second physical phone, 
 - PNG download, native link sharing with clipboard fallback, and test-page link.
 - Optional versioned merchant-profile save/load/delete on the current device.
 - Client-side fragment decoding, masked account with reveal, exact-value copy and selectable fallback.
-- Optional UPI ID support with a versioned `upi://pay` intent for compatible apps, while retaining manual account/IFSC transfer guidance.
+- Bank-details-first payer view with prominent account number, IFSC and beneficiary name, visible Copy controls, and step-by-step NEFT/IMPS guidance.
+- Optional UPI ID support with a versioned `upi://pay` intent for compatible apps as a secondary payment route.
 - Privacy and terms pages with explicit external-app and no-confirmation boundaries.
 
-BankQR can ask the operating system to open a compatible UPI app with merchant-provided payment instructions. It does not authorise, process, verify or confirm transfers. Receiving details are merchant-provided and QR payloads are encoded, not encrypted or authenticated. Bank-specific launch URIs remain deliberately null until independently validated.
+BankQR can ask the operating system to open a compatible UPI app with merchant-provided payment instructions. For account-and-IFSC transfers, customers copy details into their own bank app; BankQR cannot discover eligible installed bank apps or prefill a bank transfer without a supported integration. It does not authorise, process, verify or confirm transfers. Receiving details are merchant-provided and QR payloads are encoded, not encrypted or authenticated. Bank-specific launch URIs remain deliberately null until independently validated.
 
 ## Structure
 

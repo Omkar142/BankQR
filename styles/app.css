@@ -649,6 +649,11 @@ input.bq-input {
   padding: var(--bq-s5);
 }
 .payment-details h2 {
+  margin-bottom: var(--bq-s1);
+}
+.payment-details-intro {
+  color: var(--bq-muted);
+  font-size: var(--bq-font-caption);
   margin-bottom: var(--bq-s3);
 }
 .detail-row {
@@ -663,6 +668,39 @@ input.bq-input {
 .detail-row:last-child {
   border-bottom: 0;
   padding-bottom: 0;
+}
+.detail-row-prominent {
+  gap: var(--bq-s3);
+  padding: var(--bq-s5) 0;
+}
+.detail-row-prominent .detail-value > span + span {
+  font-size: var(--bq-font-section);
+  font-weight: 650;
+  color: var(--bq-ink-strong);
+  line-height: 1.35;
+}
+.detail-row-prominent .field-caption {
+  font-size: var(--bq-font-caption);
+  font-weight: 600;
+  color: var(--bq-ink);
+}
+.detail-copy,
+.detail-reveal {
+  min-height: var(--bq-touch);
+  min-width: var(--bq-touch);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--bq-s1);
+  padding: var(--bq-s2);
+  color: var(--bq-primary);
+  font-weight: 600;
+  font-size: var(--bq-font-caption);
+  border-radius: var(--bq-radius-sm);
+}
+.detail-copy:hover,
+.detail-reveal:hover {
+  background: var(--bq-primary-soft);
 }
 .detail-value {
   flex: 1;
@@ -769,28 +807,19 @@ input.bq-input {
 .bank-sheet > .bq-button + .bq-button {
   margin-top: var(--bq-s3);
 }
-.bank-list {
-  padding: 0;
+.transfer-steps {
+  list-style: decimal outside;
+  padding-left: var(--bq-s6);
   margin: var(--bq-s5) 0;
-  list-style: none;
 }
-.bank-list li {
-  display: flex;
-  align-items: center;
-  gap: var(--bq-s3);
-  border-bottom: var(--bq-rule) solid var(--bq-border);
-  padding: var(--bq-s3) 0;
-  font-size: var(--bq-font-caption);
+.transfer-steps li::marker {
+  color: var(--bq-primary);
+  font-weight: 700;
 }
-.bank-list li > span:first-of-type {
-  flex: 1;
-}
-.bank-list svg {
-  color: var(--bq-muted);
-  flex-shrink: 0;
-}
-.bank-list .field-caption {
-  font-size: var(--bq-font-small);
+.transfer-steps li {
+  padding-left: var(--bq-s1);
+  margin-bottom: var(--bq-s3);
+  line-height: 1.5;
 }
 .empty-state {
   max-width: var(--bq-pay-width);
