@@ -60,7 +60,7 @@ export function CopyFieldRow({
             <span>
               {state === "copied"
                 ? "Copied"
-                : `Copy ${["IFSC", "UPI ID"].includes(label) ? label : label.toLowerCase()}`}
+                : "Copy"}
             </span>
           )}
         </button>

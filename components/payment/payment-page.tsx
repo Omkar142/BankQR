@@ -83,7 +83,7 @@ function ValidPayment({ payload }: { payload: BankQrPayload }) {
             <label className={`method-option${method === "upi" ? " selected" : ""}`}>
               <input type="radio" name="payment-method" checked={method === "upi"} onChange={() => setMethod("upi")} />
               <Smartphone size={20} aria-hidden="true" />
-              <span><strong>UPI</strong><small>Pay with an app</small></span>
+              <span><strong>UPI</strong><small>Open an app</small></span>
             </label>
           </div>
         </fieldset>

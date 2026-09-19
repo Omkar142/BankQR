@@ -126,9 +126,6 @@ test("merchant can offer an exact UPI app intent with manual transfer fallback",
   expect(intent).toContain("am=125.00");
   expect(intent).not.toContain("001234567890");
   expect(intent).not.toContain("HDFC0001234");
-  await expect(
-    page.getByRole("button", { name: "How to make a bank transfer" }),
-  ).toBeVisible();
   const transferAction = page.getByRole("button", {
     name: "How to make a bank transfer",
   });
