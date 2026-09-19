@@ -187,6 +187,32 @@ test("payer masks account, copies full value, traps sheet focus and changes hash
   ).toBeVisible();
   await expect(page.getByText("Kiran Stores")).toHaveCount(0);
 });
+test("bank details are prominent and instructions avoid a fake app list", async ({
+  page,
+}) => {
+  await page.goto("/pay/" + hash(payload));
+  await expect(
+    page.getByRole("heading", { name: "Bank transfer details" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Copy each detail as your bank asks for it."),
+  ).toBeVisible();
+  const accountCopy = page.getByRole("button", {
+    name: "Copy account number",
+    exact: true,
+  });
+  await expect(accountCopy).toContainText("Copy");
+  const ifscCopy = page.getByRole("button", {
+    name: "Copy ifsc",
+    exact: true,
+  });
+  await expect(ifscCopy).toContainText("Copy");
+  await page
+    .getByRole("button", { name: "How to make a bank transfer" })
+    .click();
+  await expect(page.getByRole("dialog")).toContainText("Add the beneficiary");
+  await expect(page.getByRole("dialog")).not.toContainText("State Bank of India");
+});
 test("static amount, clipboard fallback, zero payload storage or request leakage", async ({
   page,
 }) => {
