@@ -113,6 +113,11 @@ test("merchant can offer an exact UPI app intent with manual transfer fallback",
     .getAttribute("href");
   expect(paymentUrl).toContain("/pay/#c1=");
   await page.goto(paymentUrl!);
+  const method = page.getByRole("group", { name: "Choose how to pay" });
+  await expect(method.getByRole("radio", { name: "Bank transfer" })).toBeChecked();
+  await expect(method.getByRole("radio", { name: "UPI" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Pay with UPI app" })).toHaveCount(0);
+  await method.getByRole("radio", { name: "UPI" }).check();
   const upiAction = page.getByRole("link", { name: "Pay with UPI app" });
   await expect(upiAction).toBeVisible();
   const intent = await upiAction.getAttribute("href");
@@ -138,6 +143,20 @@ test("merchant can offer an exact UPI app intent with manual transfer fallback",
       await upiAction.elementHandle(),
     ),
   ).toBe(true);
+});
+test("payer can find and switch between bank transfer and UPI", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/pay/" + hash({ ...payload, v: 2, upiId: "kiran@bank" }));
+  const method = page.getByRole("group", { name: "Choose how to pay" });
+  await expect(method.getByRole("radio", { name: "Bank transfer" })).toBeChecked();
+  await expect(method.getByRole("radio", { name: "UPI" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Bank transfer details" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Pay with UPI app" })).toHaveCount(0);
+  await method.getByRole("radio", { name: "UPI" }).check();
+  await expect(page.getByRole("link", { name: "Pay with UPI app" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Bank transfer details" })).toHaveCount(0);
+  await method.getByRole("radio", { name: "Bank transfer" }).check();
+  await expect(page.getByRole("heading", { name: "Bank transfer details" })).toBeVisible();
 });
 test("static UPI requires a valid customer amount before app launch", async ({
   page,
