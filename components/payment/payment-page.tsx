@@ -18,6 +18,7 @@ const snapshot = () => window.location.hash;
 const serverSnapshot = () => null;
 function ValidPayment({ payload }: { payload: BankQrPayload }) {
   const [amount, setAmount] = useState("");
+  const [method, setMethod] = useState<"bank" | "upi">("bank");
   const amountPaise =
     payload.mode === "payment" ? payload.amountPaise : parseAmount(amount);
   const upiInput =
@@ -70,42 +71,45 @@ function ValidPayment({ payload }: { payload: BankQrPayload }) {
           </div>
         )}
       </div>
+      {payload.v === 2 && (
+        <fieldset className="payment-methods">
+          <legend>Choose how to pay</legend>
+          <div className="method-options">
+            <label className={`method-option${method === "bank" ? " selected" : ""}`}>
+              <input type="radio" name="payment-method" checked={method === "bank"} onChange={() => setMethod("bank")} />
+              <Landmark size={20} aria-hidden="true" />
+              <span><strong>Bank transfer</strong><small>IMPS or NEFT</small></span>
+            </label>
+            <label className={`method-option${method === "upi" ? " selected" : ""}`}>
+              <input type="radio" name="payment-method" checked={method === "upi"} onChange={() => setMethod("upi")} />
+              <Smartphone size={20} aria-hidden="true" />
+              <span><strong>UPI</strong><small>Pay with an app</small></span>
+            </label>
+          </div>
+        </fieldset>
+      )}
+      {method === "bank" && <>
       <section className="bank-transfer-guide" aria-labelledby="transfer-heading">
-        <h2 id="transfer-heading"><Landmark size={24} aria-hidden="true" />Pay by bank transfer</h2>
-        <p className="transfer-intro">Use IMPS or NEFT in your banking app.</p>
-        <ol className="transfer-guide-steps">
-          <li>
-            <strong>Open your banking app</strong>
-            <p>Choose Money transfer, then IMPS or NEFT. Add a new receiver (beneficiary) if asked.</p>
-          </li>
-          <li>
-            <strong>Copy here. Paste in your bank app.</strong>
-            <p>Copy one detail below. Switch to your bank app, touch and hold the matching box, then tap Paste. Come back for the next detail.</p>
-          </li>
-          <li>
-            <strong>Check the name and amount. Then send.</strong>
-            <p>Check the receiver shown by your bank before you send money.</p>
-          </li>
-        </ol>
+        <h2 id="transfer-heading">Pay by bank transfer</h2>
+        <p>Open your bank app and choose an IMPS or NEFT transfer. Copy the details below, then paste them into your bank app one at a time.</p>
       </section>
       <section className="payment-details" aria-labelledby="details-heading">
         <h2 id="details-heading">Bank transfer details</h2>
         <p className="payment-details-intro">
-          Copy and paste one detail at a time. Your phone keeps only the last detail copied.
+          Copy one field at a time. Your phone keeps only the last detail copied.
         </p>
         <CopyFieldRow
           label="Account number"
           value={payload.accountNumber}
           masked
           prominent
-          pasteHint="Copies the full number. Paste into Account number in your bank app."
+          pasteHint="Paste into Account number in your bank app."
         />
-        <CopyFieldRow label="IFSC" value={payload.ifsc} prominent pasteHint="Paste into IFSC in your bank app." />
+        <CopyFieldRow label="IFSC" value={payload.ifsc} prominent />
         <CopyFieldRow
           label="Account holder"
           value={payload.accountHolderName}
           prominent
-          pasteHint="Paste into Beneficiary name or Account holder name in your bank app."
         />
         {payload.bankName && (
           <div className="detail-row">
@@ -116,18 +120,19 @@ function ValidPayment({ payload }: { payload: BankQrPayload }) {
           </div>
         )}
         {amountPaise && (
-          <CopyFieldRow label="Amount" value={amountText(amountPaise)} prominent pasteHint="Paste into Amount in your bank app. The amount is in rupees." />
+          <CopyFieldRow label="Amount" value={amountText(amountPaise)} prominent />
         )}{" "}
         {payload.reference && (
-          <CopyFieldRow label="Reference" value={payload.reference} prominent pasteHint="Paste into Remarks or Reference, if your bank asks for it." />
+          <CopyFieldRow label="Reference" value={payload.reference} prominent />
         )}
       </section>
       <SafetyNote />
       <BankLaunchSheet />
-      {payload.v === 2 && (
+      </>}
+      {payload.v === 2 && method === "upi" && (
         <section className="upi-action" aria-labelledby="upi-action-title">
-          <h2 id="upi-action-title">Or, you can pay via UPI</h2>
-          <p className="upi-choice-note">Choose this if you prefer to use a UPI app.</p>
+          <h2 id="upi-action-title">Pay with UPI</h2>
+          <p className="upi-choice-note">Use a UPI app on this phone, or copy the UPI ID below.</p>
           {upiIntent ? (
             <a className="bq-button secondary full" href={upiIntent}>
               <Smartphone size={20} aria-hidden="true" />
@@ -143,7 +148,7 @@ function ValidPayment({ payload }: { payload: BankQrPayload }) {
             Your phone may open a UPI app or let you choose one. Check the
             receiver and amount in that app before paying.
           </p>
-          <CopyFieldRow label="UPI ID" value={payload.upiId} prominent pasteHint="You can also paste this into Pay to UPI ID in your UPI app." />
+          <CopyFieldRow label="UPI ID" value={payload.upiId} prominent pasteHint="Paste into Pay to UPI ID in your UPI app." />
           <details className="upi-help">
             <summary>UPI app not opening?</summary>
             <p>Using Chrome on Android? Try the button below.</p>

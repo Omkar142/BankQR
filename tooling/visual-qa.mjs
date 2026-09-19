@@ -56,12 +56,14 @@ for (const [name, width, height] of [
   for (const [section, selector] of [
     ["guide", ".bank-transfer-guide"],
     ["details", ".payment-details"],
-    ["upi", ".upi-action"],
   ]) {
     await page.locator(selector).screenshot({
       path: `artifacts/screenshots/${section}-${name}.png`,
     });
   }
+  await page.getByRole("radio", { name: "UPI" }).check();
+  await page.locator(".upi-action").screenshot({ path: `artifacts/screenshots/upi-${name}.png` });
+  await page.getByRole("radio", { name: "Bank transfer" }).check();
   await page
     .getByRole("button", { name: "How to make a bank transfer", exact: true })
     .click();

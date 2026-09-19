@@ -4,7 +4,7 @@ import { Landmark, X } from "lucide-react";
 export function BankLaunchSheet() {
   return (
     <Dialog.Root>
-      <Dialog.Trigger className="bq-button primary full">
+      <Dialog.Trigger className="bank-help-trigger">
         <Landmark size={20} />
         How to make a bank transfer
       </Dialog.Trigger>

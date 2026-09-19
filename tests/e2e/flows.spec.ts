@@ -77,11 +77,11 @@ test("payment mode requires amount and confirms destructive mode switch", async 
 }) => {
   await page.goto("/create/");
   await page.getByRole("radio", { name: "Payment QR", exact: true }).check();
-  await page.getByLabel("Amount (₹)", { exact: true }).fill("125.00");
+  await page.getByLabel(/^Amount \(/).fill("125.00");
   await page.getByRole("radio", { name: "Static QR", exact: true }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.getByRole("button", { name: "Keep payment QR" }).click();
-  await expect(page.getByLabel("Amount (₹)", { exact: true })).toHaveValue(
+  await expect(page.getByLabel(/^Amount \(/)).toHaveValue(
     "125.00",
   );
 });
@@ -100,7 +100,7 @@ test("merchant can offer an exact UPI app intent with manual transfer fallback",
     .fill("001234567890");
   await page.getByLabel("IFSC", { exact: true }).fill("HDFC0001234");
   await page.getByLabel("UPI ID (optional)", { exact: true }).fill("kiran@bank");
-  await page.getByLabel("Amount (₹)", { exact: true }).fill("125.00");
+  await page.getByLabel(/^Amount \(/).fill("125.00");
   await page.getByLabel("Reference (optional)").fill("INV-1");
   await page
     .getByLabel("I confirm these receiving details are correct.")
@@ -132,17 +132,8 @@ test("merchant can offer an exact UPI app intent with manual transfer fallback",
   const transferAction = page.getByRole("button", {
     name: "How to make a bank transfer",
   });
-  await expect(transferAction).toHaveClass(/primary/);
-  await expect(upiAction).toHaveClass(/secondary/);
-  expect(
-    await transferAction.evaluate(
-      (button, upi) =>
-        Boolean(
-          button.compareDocumentPosition(upi) & Node.DOCUMENT_POSITION_FOLLOWING,
-        ),
-      await upiAction.elementHandle(),
-    ),
-  ).toBe(true);
+  await method.getByRole("radio", { name: "Bank transfer" }).check();
+  await expect(transferAction).toBeVisible();
 });
 test("payer can find and switch between bank transfer and UPI", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -171,6 +162,7 @@ test("static UPI requires a valid customer amount before app launch", async ({
         amountPaise: undefined,
       }),
   );
+  await page.getByRole("radio", { name: "UPI" }).check();
   await expect(
     page.getByRole("button", { name: "Enter an amount to use UPI" }),
   ).toBeDisabled();
@@ -227,14 +219,11 @@ test("bank details are prominent and instructions avoid a fake app list", async 
   await expect(
     page.getByRole("heading", { name: "Bank transfer details" }),
   ).toBeVisible();
-  await expect(
-    page.getByText("Copy and paste one detail at a time. Your phone keeps only the last detail copied."),
-  ).toBeVisible();
+  await expect(page.getByText("Copy one field at a time. Your phone keeps only the last detail copied.")).toBeVisible();
   const guide = page.getByRole("region", { name: "Pay by bank transfer" });
   await expect(guide).toBeVisible();
   await expect(guide).toContainText("IMPS or NEFT");
-  await expect(guide).toContainText("touch and hold the matching box, then tap Paste");
-  await expect(page.getByText("Paste into IFSC in your bank app.", { exact: true })).toBeVisible();
+  await expect(guide).toContainText("paste them into your bank app one at a time");
   const accountCopy = page.getByRole("button", {
     name: "Copy account number",
     exact: true,
@@ -261,8 +250,9 @@ test("optional UPI has Android recovery and exact manual-copy fallback", async (
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.setViewportSize({ width: 320, height: 800 });
   await page.goto("/pay/" + hash({ ...payload, v: 2, upiId: "kiran@bank" }));
-  const upi = page.getByRole("region", { name: "Or, you can pay via UPI" });
-  await expect(upi).toContainText("Choose this if you prefer");
+  await page.getByRole("radio", { name: "UPI" }).check();
+  const upi = page.getByRole("region", { name: "Pay with UPI" });
+  await expect(upi).toContainText("Use a UPI app on this phone");
   await upi.getByText("UPI app not opening?", { exact: true }).click();
   await expect(upi.getByRole("link", { name: "Try opening UPI apps on Android" })).toHaveAttribute(
     "href",
@@ -270,6 +260,7 @@ test("optional UPI has Android recovery and exact manual-copy fallback", async (
   );
   await upi.getByRole("button", { name: "Copy upi id", exact: true }).click();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("kiran@bank");
+  await page.getByRole("radio", { name: "Bank transfer" }).check();
   await page.getByRole("button", { name: "Copy ifsc", exact: true }).click();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("HDFC0001234");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

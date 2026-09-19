@@ -61,10 +61,12 @@ if (!testUrl?.startsWith(`${siteOrigin}${siteBasePath}/pay/#c1=`)) {
 await page.goto(testUrl);
 await expect(page.getByRole("heading", { name: "Kiran Stores" })).toBeVisible();
 await expect(page.getByRole("region", { name: "Pay by bank transfer" })).toContainText(
-  "touch and hold the matching box, then tap Paste",
+  "paste them into your bank app one at a time",
 );
-await expect(page.getByRole("heading", { name: "Or, you can pay via UPI" })).toBeVisible();
+await expect(page.getByRole("radio", { name: "UPI" })).toBeVisible();
 await page.getByLabel("Amount to pay").fill("25.50");
+await page.getByRole("radio", { name: "UPI" }).check();
+await expect(page.getByRole("heading", { name: "Pay with UPI" })).toBeVisible();
 const upiIntent = await page
   .getByRole("link", { name: "Pay with UPI app" })
   .getAttribute("href");
