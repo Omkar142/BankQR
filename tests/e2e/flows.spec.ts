@@ -209,8 +209,13 @@ test("bank details are prominent and instructions avoid a fake app list", async 
     page.getByRole("heading", { name: "Bank transfer details" }),
   ).toBeVisible();
   await expect(
-    page.getByText("Copy each detail as your bank asks for it."),
+    page.getByText("Copy and paste one detail at a time. Your phone keeps only the last detail copied."),
   ).toBeVisible();
+  const guide = page.getByRole("region", { name: "Pay by bank transfer" });
+  await expect(guide).toBeVisible();
+  await expect(guide).toContainText("IMPS or NEFT");
+  await expect(guide).toContainText("touch and hold the matching box, then tap Paste");
+  await expect(page.getByText("Paste into IFSC in your bank app.", { exact: true })).toBeVisible();
   const accountCopy = page.getByRole("button", {
     name: "Copy account number",
     exact: true,
@@ -229,6 +234,27 @@ test("bank details are prominent and instructions avoid a fake app list", async 
   );
   await expect(page.getByRole("dialog")).toContainText("Add the beneficiary");
   await expect(page.getByRole("dialog")).not.toContainText("State Bank of India");
+});
+test("optional UPI has Android recovery and exact manual-copy fallback", async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.goto("/pay/" + hash({ ...payload, v: 2, upiId: "kiran@bank" }));
+  const upi = page.getByRole("region", { name: "Or, you can pay via UPI" });
+  await expect(upi).toContainText("Choose this if you prefer");
+  await upi.getByText("UPI app not opening?", { exact: true }).click();
+  await expect(upi.getByRole("link", { name: "Try opening UPI apps on Android" })).toHaveAttribute(
+    "href",
+    "intent://pay?pa=kiran%40bank&pn=Kiran+Rao&am=125.00&cu=INR#Intent;scheme=upi;end",
+  );
+  await upi.getByRole("button", { name: "Copy upi id", exact: true }).click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("kiran@bank");
+  await page.getByRole("button", { name: "Copy ifsc", exact: true }).click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("HDFC0001234");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 });
 test("static amount, clipboard fallback, zero payload storage or request leakage", async ({
   page,

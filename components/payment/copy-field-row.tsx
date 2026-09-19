@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Check, Copy, Eye, EyeOff } from "lucide-react";
 import { copyText } from "@/lib/clipboard";
 import { maskAccount } from "@/features/bankqr/normalize";
@@ -8,12 +8,15 @@ export function CopyFieldRow({
   value,
   masked = false,
   prominent = false,
+  pasteHint,
 }: {
   label: string;
   value: string;
   masked?: boolean;
   prominent?: boolean;
+  pasteHint?: string;
 }) {
+  const hintId = useId();
   const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
   const [revealed, setRevealed] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -38,26 +41,35 @@ export function CopyFieldRow({
             className={prominent ? "detail-reveal" : "icon-button"}
             type="button"
             onClick={() => setRevealed(!revealed)}
-            aria-label={`${revealed ? "Hide" : "Reveal"} account number`}
+            aria-label={`${revealed ? "Hide" : "Show"} account number`}
+            aria-pressed={revealed}
           >
-            {revealed ? <EyeOff size={18} /> : <Eye size={18} />}
-            {prominent && <span>{revealed ? "Hide" : "Reveal"}</span>}
+            {revealed ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
+            {prominent && <span>{revealed ? "Hide number" : "Show number"}</span>}
           </button>
         )}
         <button
           type="button"
           className={prominent ? "detail-copy" : "icon-button"}
           aria-label={`Copy ${label.toLowerCase()}`}
+          aria-describedby={pasteHint ? hintId : undefined}
           onClick={copy}
         >
-          {state === "copied" ? <Check size={18} /> : <Copy size={18} />}
-          {prominent && <span>{state === "copied" ? "Copied" : "Copy"}</span>}
+          {state === "copied" ? <Check size={18} aria-hidden="true" /> : <Copy size={18} aria-hidden="true" />}
+          {prominent && (
+            <span>
+              {state === "copied"
+                ? "Copied"
+                : `Copy ${["IFSC", "UPI ID"].includes(label) ? label : label.toLowerCase()}`}
+            </span>
+          )}
         </button>
       </div>
+      {pasteHint && <p className="paste-hint" id={hintId}>{pasteHint}</p>}
       <span className="sr-only" role="status">
-        {state === "copied" ? `${label} copied` : ""}
+        {state === "copied" ? `${label} copied. ${pasteHint ?? ""}` : ""}
       </span>
-      {state === "copied" && (
+      {state === "copied" && !prominent && (
         <span className="copy-feedback" aria-hidden="true">
           Copied
         </span>

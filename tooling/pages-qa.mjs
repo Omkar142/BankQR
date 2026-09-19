@@ -1,7 +1,7 @@
 import { chromium, expect } from "@playwright/test";
 
 const browser = await chromium.launch();
-const page = await browser.newPage();
+const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
 const siteUrl = (process.env.BANKQR_PAGES_URL ?? "http://127.0.0.1:4174/BankQR/").replace(
   /\/?$/,
   "/",
@@ -55,6 +55,10 @@ if (!testUrl?.startsWith(`${siteOrigin}${siteBasePath}/pay/#v2=`)) {
 }
 await page.goto(testUrl);
 await expect(page.getByRole("heading", { name: "Kiran Stores" })).toBeVisible();
+await expect(page.getByRole("region", { name: "Pay by bank transfer" })).toContainText(
+  "touch and hold the matching box, then tap Paste",
+);
+await expect(page.getByRole("heading", { name: "Or, you can pay via UPI" })).toBeVisible();
 await page.getByLabel("Amount to pay").fill("25.50");
 const upiIntent = await page
   .getByRole("link", { name: "Pay with UPI app" })
@@ -62,6 +66,11 @@ const upiIntent = await page
 if (!upiIntent?.startsWith("upi://pay?") || !upiIntent.includes("pa=kiran%40bank")) {
   throw new Error(`Unexpected deployed UPI intent: ${upiIntent}`);
 }
+await page.getByText("UPI app not opening?", { exact: true }).click();
+await expect(page.getByRole("link", { name: "Try opening UPI apps on Android" })).toHaveAttribute(
+  "href",
+  "intent://pay?pa=kiran%40bank&pn=Kiran+Rao&am=25.50&cu=INR#Intent;scheme=upi;end",
+);
 if (failures.length) throw new Error(`Resource failures:\n${failures.join("\n")}`);
 console.log("GitHub Pages base-path flow passed without resource errors.");
 await browser.close();

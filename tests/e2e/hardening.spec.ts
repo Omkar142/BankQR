@@ -29,7 +29,7 @@ test("valid-to-valid fragment changes reset reveal and customer state", async ({
   page,
 }) => {
   await page.goto("/pay/" + hash(payload));
-  await page.getByRole("button", { name: "Reveal account number" }).click();
+  await page.getByRole("button", { name: "Show account number" }).click();
   await expect(page.getByText(account, { exact: true })).toBeVisible();
   await page.evaluate(
     (next) => {

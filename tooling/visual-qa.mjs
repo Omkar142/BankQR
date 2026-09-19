@@ -3,7 +3,8 @@ import { mkdir } from "node:fs/promises";
 await mkdir("artifacts/screenshots", { recursive: true });
 const browser = await chromium.launch();
 const payload = {
-  v: 1,
+  v: 2,
+  upiId: "kiran@bank",
   mode: "payment",
   merchantName: "Kiran Stores",
   accountHolderName: "Kiran Rao",
@@ -31,7 +32,7 @@ for (const [name, width, height] of [
     ["create", "/create/"],
     [
       "pay",
-      "/pay/#v1=" + Buffer.from(JSON.stringify(payload)).toString("base64url"),
+      "/pay/#v2=" + Buffer.from(JSON.stringify(payload)).toString("base64url"),
     ],
   ]) {
     await page.goto("http://127.0.0.1:4173" + path);
@@ -51,6 +52,15 @@ for (const [name, width, height] of [
         errors,
       }),
     );
+  }
+  for (const [section, selector] of [
+    ["guide", ".bank-transfer-guide"],
+    ["details", ".payment-details"],
+    ["upi", ".upi-action"],
+  ]) {
+    await page.locator(selector).screenshot({
+      path: `artifacts/screenshots/${section}-${name}.png`,
+    });
   }
   await page
     .getByRole("button", { name: "How to make a bank transfer", exact: true })

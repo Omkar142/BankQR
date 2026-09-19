@@ -1,7 +1,32 @@
 import { describe, expect, it } from "vitest";
-import { buildUpiIntent } from "@/features/bankqr/upi";
+import { buildAndroidUpiIntent, buildUpiIntent } from "@/features/bankqr/upi";
 
 describe("UPI intent", () => {
+  it("wraps validated instructions for Android without restricting the app", () => {
+    const input = {
+      upiId: "kiran@bank",
+      payeeName: "Kiran Rao",
+      amountPaise: 12500,
+      note: "INV-1",
+    };
+    expect(buildAndroidUpiIntent(input)).toBe(
+      "intent://pay?pa=kiran%40bank&pn=Kiran+Rao&am=125.00&cu=INR&tn=INV-1#Intent;scheme=upi;end",
+    );
+  });
+
+  it("cannot inject Android intent extras through a receiver name", () => {
+    const input = {
+      upiId: "kiran@bank",
+      payeeName: "Store #Intent;package=evil;end",
+      amountPaise: 12500,
+    };
+    const uri = buildAndroidUpiIntent(input);
+    expect(uri.split("#")).toHaveLength(2);
+    expect(new URL(uri).searchParams.get("pn")).toBe(input.payeeName);
+    expect(new URL(uri).hash).toBe("#Intent;scheme=upi;end");
+    expect(() => buildAndroidUpiIntent({ ...input, amountPaise: 0 })).toThrow();
+  });
+
   it("builds an exact INR payment URI without bank-account leakage", () => {
     const intent = buildUpiIntent({
       upiId: "kiran.store@bank",

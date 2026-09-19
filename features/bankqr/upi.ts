@@ -33,3 +33,11 @@ export function buildUpiIntent(input: z.input<typeof upiIntentSchema>): string {
   if (value.note) query.set("tn", value.note);
   return `upi://pay?${query.toString()}`;
 }
+
+// Chrome's documented Intent URI wrapper. No package: the phone resolves a
+// compatible handler. Keep all user values in the validated, encoded query.
+export function buildAndroidUpiIntent(
+  input: z.input<typeof upiIntentSchema>,
+): string {
+  return `${buildUpiIntent(input).replace(/^upi:/, "intent:")}#Intent;scheme=upi;end`;
+}

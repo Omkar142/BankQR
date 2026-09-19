@@ -118,7 +118,7 @@ Rounded corners follow the supplied control, card, hero and sheet roles. Scan-co
 
 Primary buttons are at least 52px tall; icon copy/reveal controls are 44px. Inputs have labels, explicit errors and a higher-contrast boundary. Keyboard focus uses a visible blue outline. Merchant modes are a labeled radio group. Confirmation is explicit.
 
-Payment rows expose an accessible field-specific copy name. Copy state lasts 1.2 seconds and never implies payment completion. Manual bank guidance uses Base UI's modal dialog and returns focus on dismissal. Motion is limited to QR-result appearance and short control transitions; reduced-motion settings remove transforms and animation.
+Payment rows expose a visible field-specific Copy label, a matching accessible name and a plain-language paste destination. Prominent rows stack values and controls so narrow screens do not squeeze account numbers. Copy state lasts 1.2 seconds and never implies payment completion. A pale-blue numbered guide explains switching to a bank app and copying one field at a time before the receiving details. Additional bank help uses Base UI's modal dialog and returns focus on dismissal. The optional UPI section follows a clear divider and includes expandable app-opening help. Motion is limited to QR-result appearance and short control transitions; reduced-motion settings remove transforms and animation.
 
 ## Do's and Don'ts
 
