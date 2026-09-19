@@ -59,7 +59,7 @@ test("merchant generates real scannable PNG, saves explicitly, edits invalidate 
   const png = PNG.sync.read(await readFile((await download.path())!));
   const decoded = jsQR(new Uint8ClampedArray(png.data), png.width, png.height);
   expect(decoded).toBeTruthy();
-  expect(decoded!.data).toContain("/pay/#v1=");
+  expect(decoded!.data).toContain("/pay/#c1=");
   expect(download.suggestedFilename()).toMatch(
     /^bankqr-kiran-stores-\d{8}\.png$/,
   );
@@ -111,7 +111,7 @@ test("merchant can offer an exact UPI app intent with manual transfer fallback",
   const paymentUrl = await page
     .getByRole("link", { name: "Test payment page" })
     .getAttribute("href");
-  expect(paymentUrl).toContain("/pay/#v2=");
+  expect(paymentUrl).toContain("/pay/#c1=");
   await page.goto(paymentUrl!);
   const upiAction = page.getByRole("link", { name: "Pay with UPI app" });
   await expect(upiAction).toBeVisible();

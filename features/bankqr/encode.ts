@@ -1,15 +1,16 @@
 import { payloadSchema } from "./schema";
 import { MAX_FRAGMENT_LENGTH, MAX_JSON_BYTES } from "./constants";
+import { compactPayload } from "./compact";
 export function encode(value: unknown): string {
   const payload = payloadSchema.parse(value);
-  const bytes = new TextEncoder().encode(JSON.stringify(payload));
+  const bytes = new TextEncoder().encode(JSON.stringify(compactPayload(payload)));
   if (bytes.length > MAX_JSON_BYTES)
     throw new Error("QR details are too long. Shorten optional fields.");
   const encoded = btoa(String.fromCharCode(...bytes))
     .replaceAll("+", "-")
     .replaceAll("/", "_")
     .replace(/=+$/, "");
-  const fragment = `#v${payload.v}=${encoded}`;
+  const fragment = `#c1=${encoded}`;
   if (fragment.length > MAX_FRAGMENT_LENGTH)
     throw new Error("QR details are too long.");
   return fragment;

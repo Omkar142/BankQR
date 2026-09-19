@@ -84,7 +84,9 @@ test("complete payment generation, share fallback and profile reload", async ({
   await page.getByRole("button", { name: "Share", exact: true }).click();
   const copied = await page.evaluate(() => navigator.clipboard.readText());
   expect(new URL(copied).search).toBe("");
-  expect(copied).toContain("/pay/#v1=");
+  expect(copied).toContain("/pay/#c1=");
+  await page.getByRole("button", { name: "Copy link", exact: true }).click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(copied);
   await page.getByRole("button", { name: "Save on this device" }).click();
   const saved = await page.evaluate(() => Object.values(localStorage)[0]);
   expect(saved).not.toContain("amount");

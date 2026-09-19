@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { Download, Share2, ArrowUpRight, Pencil } from "lucide-react";
+import { Copy, Download, Share2, ArrowUpRight, Pencil } from "lucide-react";
 import { motionTokens } from "@/styles/motion";
 import { maskAccount } from "@/features/bankqr/normalize";
 import { copyText } from "@/lib/clipboard";
@@ -21,6 +21,15 @@ export function QrResultCard({
   const [notice, setNotice] = useState("");
   const [fallback, setFallback] = useState(false);
   const reduce = useReducedMotion();
+  async function copyLink() {
+    const ok = await copyText(result.url, navigator.clipboard);
+    setNotice(
+      ok
+        ? "Payment link copied. Share it only with intended payers."
+        : "Select and copy the payment link below.",
+    );
+    setFallback(!ok);
+  }
   async function share() {
     try {
       if (navigator.share) {
@@ -34,13 +43,7 @@ export function QrResultCard({
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
     }
-    const ok = await copyText(result.url, navigator.clipboard);
-    setNotice(
-      ok
-        ? "Payment link copied. Share it only with intended payers."
-        : "Select and copy the payment link below.",
-    );
-    setFallback(!ok);
+    await copyLink();
   }
   return (
     <motion.section
@@ -93,6 +96,10 @@ export function QrResultCard({
         <button className="bq-button secondary" onClick={share}>
           <Share2 size={18} />
           Share
+        </button>
+        <button className="bq-button secondary" onClick={copyLink}>
+          <Copy size={18} aria-hidden="true" />
+          Copy link
         </button>
       </div>
       <a

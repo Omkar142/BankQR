@@ -1,4 +1,5 @@
 import { chromium, expect } from "@playwright/test";
+import { mkdir } from "node:fs/promises";
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
@@ -50,7 +51,11 @@ try {
   );
 }
 const testUrl = await testPaymentLink.getAttribute("href");
-if (!testUrl?.startsWith(`${siteOrigin}${siteBasePath}/pay/#v2=`)) {
+await expect(page.getByRole("button", { name: "Copy link", exact: true })).toBeVisible();
+expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+await mkdir("artifacts/screenshots", { recursive: true });
+await page.locator(".result-card").screenshot({ path: "artifacts/screenshots/share-result-mobile.png" });
+if (!testUrl?.startsWith(`${siteOrigin}${siteBasePath}/pay/#c1=`)) {
   throw new Error(`Unexpected generated Pages URL: ${testUrl}`);
 }
 await page.goto(testUrl);

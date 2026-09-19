@@ -48,6 +48,7 @@ Before merchant field testing, validate a QR scan from a second physical phone, 
 
 - Static or fixed-amount QR with optional reference, strict input validation and explicit receiving-details preview.
 - PNG download, native link sharing with clipboard fallback, and test-page link.
+- Compact fragment links with a dedicated Copy link button; existing V1/V2 QR links remain supported. A representative static link is 36% shorter without adding hosted bank-detail storage.
 - Optional versioned merchant-profile save/load/delete on the current device.
 - Client-side fragment decoding, masked account with reveal, exact-value copy and selectable fallback.
 - Bank-details-first payer view with always-visible, numbered IMPS/NEFT instructions, large field-specific Copy buttons and plain-language paste guidance. Customers are told to copy and paste one detail at a time.

@@ -58,7 +58,7 @@ describe("fragment protocol", () => {
     expect(() => paymentUrl(base, origin)).toThrow(),
   );
   it("allows loopback preview", () =>
-    expect(paymentUrl(base, "http://127.0.0.1:4173")).toContain("/pay/#v1="));
+    expect(paymentUrl(base, "http://127.0.0.1:4173")).toContain("/pay/#c1="));
   it("accepts fixed amount and optional reference", () =>
     expect(
       decode(
@@ -78,7 +78,7 @@ describe("fragment protocol", () => {
       mode: "payment",
       amountPaise: 125,
     } as const;
-    expect(encode(upiPayload)).toMatch(/^#v2=/);
+    expect(encode(upiPayload)).toMatch(/^#c1=/);
     expect(decode(encode(upiPayload))).toEqual(upiPayload);
   });
   it("keeps fragment and payload versions consistent", () => {
