@@ -59,6 +59,12 @@ UPI intent support followed with a preserved RED checkpoint (`22697cc`), strict 
 
 The UPI-enabled export was published at `https://omkar142.github.io/BankQR/`. A public browser run passed merchant entry, V2 QR generation, payer amount entry and exact UPI-intent inspection with no resource or console failures.
 
+## Guided transfers and compact links — 2026-09-19
+
+Source `8eb4095` is deployed in Pages commit `2730ced`. The public `deployment.json` marker matches this source, and [Pages deployment 35442412350](https://github.com/Omkar142/BankQR/actions/runs/35442412350) completed successfully. The public mobile browser smoke check passed merchant creation, compact-link generation, visible IMPS/NEFT instructions, optional UPI, exact amount entry and Android retry URI inspection without resource errors. An earlier atomic branch push did not start a Pages run; the final separate `gh-pages` push did. No cause beyond that observation is claimed.
+
+Local verification: 111 unit tests, 30 desktop/mobile E2E checks, lint, typecheck, production build and dependency audit passed. The representative shared URL shrank from 277 to 177 characters, while old V1/V2 links remain supported. See `COMPACT_LINKS.md` and `BANK_TRANSFER_UX_TDD.md` for protocol, UX and review evidence. The original direct UPI URI remains available; the Android retry is additional. Physical installed-app resolution still requires a phone test and is not represented as verified.
+
 Review verdict: input boundaries resolved with shared `#788b9e` control border; modal capture resolved. `bank-small-viewport.png` confirms full backdrop coverage and no visible background skip link. Runtime bounds place the hidden skip link above the viewport and focus within the modal. Earlier full-page capture stitched fixed elements at an incorrect scroll position. No material findings remain.
 
 The documenter subagent hit its usage limit. Primary agent completed `DESIGN.md` and `.impeccable/design.json`; visual review itself completed independently.
